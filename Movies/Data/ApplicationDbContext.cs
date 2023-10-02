@@ -30,7 +30,7 @@ namespace Movies.Data
         public string Country { get; set; }
 
         [ForeignKey("UserId")]
-        public ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
 
     }
 

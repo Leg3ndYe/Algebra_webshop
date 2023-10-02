@@ -77,7 +77,7 @@ namespace Movies.Data.Migrations
 
             migrationBuilder.Sql($"DELETE FROM AspNetRoles WHERE Id = '{ADMIN_ROLE_GUID}'");
 
-            migrationBuilder.Sql($"DELETE FROM AspNetRoles WHERE Id = '{ADMIN_USER_GUID}'");
+            migrationBuilder.Sql($"DELETE FROM AspNetUsers WHERE Id = '{ADMIN_USER_GUID}'");
         }
     }
 }
