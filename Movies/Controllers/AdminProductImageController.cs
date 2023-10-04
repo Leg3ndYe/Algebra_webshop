@@ -24,12 +24,9 @@ namespace Movies.Controllers
         // GET: AdminProductImage
         public async Task<IActionResult> Index(int? id)
         {
-            if(id == null)
-            {
-                return RedirectToAction("Index", "AdminProduct");
-            }
-
-              return _context.ProductImage != null ? 
+            if(id == null) return RedirectToAction("Index", "AdminProduct");
+            ViewBag.ProductId = id;
+            return _context.ProductImage != null ? 
                           View(await _context.ProductImage.ToListAsync()) :
                           Problem("Entity set 'ApplicationDbContext.ProductImage'  is null.");
         }
@@ -53,9 +50,11 @@ namespace Movies.Controllers
         }
 
         // GET: AdminProductImage/Create
-        public IActionResult Create()
+        public IActionResult Create(int? id)
         {
-            return View();
+            if (id == null) return RedirectToAction("Index", "AdminProduct");
+            if (_context.Product.Count(p => p.Id == id) == 0) return RedirectToAction("Index", "AdminProduct");
+            return View(new ProductImage() { ProductId = (int)id });
         }
 
         // POST: AdminProductImage/Create
@@ -65,11 +64,30 @@ namespace Movies.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ProductId,IsMainImage,Title,FileName")] ProductImage productImage)
         {
+            ModelState.Remove("ProductTitle");
+            if (HttpContext.Request.Form.Files.Count > 0) ModelState.Remove("FileName");
             if (ModelState.IsValid)
             {
+                var imageFile = HttpContext.Request.Form.Files.FirstOrDefault();
+                var uploadPath = Path.Combine("wwwroot", "images", "products", productImage.ProductId.ToString());
+                if(!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+                if(imageFile!=null)
+                {
+                    var fileName = Path.Combine(uploadPath, imageFile.FileName);
+                    using(var fileStream = new FileStream(fileName, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(fileStream);
+                    }
+                    fileName = fileName.Replace("wwwroot\\", "/").Replace("\\", "/");
+                    productImage.FileName = fileName;
+                }
+                productImage.Id = 0;
                 _context.Add(productImage);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { id = productImage.ProductId });
             }
             return View(productImage);
         }
@@ -77,6 +95,7 @@ namespace Movies.Controllers
         // GET: AdminProductImage/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            return RedirectToAction("Index", "AdminProduct");
             if (id == null || _context.ProductImage == null)
             {
                 return NotFound();
@@ -97,6 +116,7 @@ namespace Movies.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ProductId,IsMainImage,Title,FileName")] ProductImage productImage)
         {
+            return RedirectToAction("Index", "AdminProduct");
             if (id != productImage.Id)
             {
                 return NotFound();
@@ -155,11 +175,13 @@ namespace Movies.Controllers
             var productImage = await _context.ProductImage.FindAsync(id);
             if (productImage != null)
             {
+                var fileName = "wwwroot" + productImage.FileName.Replace("/", "\\");
+                System.IO.File.Delete(fileName);
                 _context.ProductImage.Remove(productImage);
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new {id = productImage.ProductId});
         }
 
         private bool ProductImageExists(int id)
