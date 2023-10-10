@@ -15,6 +15,7 @@ namespace Movies.Controllers
     public class AdminProductController : Controller
     {
         private readonly ApplicationDbContext _context;
+
         public AdminProductController(ApplicationDbContext context)
         {
             _context = context;
@@ -24,15 +25,16 @@ namespace Movies.Controllers
         public async Task<IActionResult> Index()
         {
             if(_context.Product == null)
-            {
                 return Problem("Entity set 'ApplicationDbContext.Product'  is null.");
-            }
             var products = await _context.Product.ToListAsync();
-            foreach(var product in products)
+            foreach (var product in products)
             {
                 product.ProductImages = _context.ProductImage.Where(pi => pi.ProductId == product.Id).ToList();
+                product.ProductCategories = _context.ProductCategory.Where(pc => pc.ProductId == product.Id).ToList();
             }
-            return View(products);         
+            ViewBag.Categories = _context.Category.ToList();
+            return View(products);
+                          
         }
 
         // GET: AdminProduct/Details/5
@@ -64,12 +66,11 @@ namespace Movies.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,IsActive,Title,Description,Quantity,Price")] Product product)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,Active,Quantity,Price")] Product product)
         {
             ModelState.Remove("ProductCategories");
             ModelState.Remove("OrderItems");
             ModelState.Remove("ProductImages");
-
             if (ModelState.IsValid)
             {
                 _context.Add(product);
@@ -93,6 +94,8 @@ namespace Movies.Controllers
                 return NotFound();
             }
             product.ProductImages = _context.ProductImage.Where(pi => pi.ProductId == product.Id).ToList();
+            product.ProductCategories = _context.ProductCategory.Where(pc => pc.ProductId == product.Id).ToList();
+            ViewBag.Categories = _context.Category.ToList();
             return View(product);
         }
 
@@ -101,7 +104,7 @@ namespace Movies.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,IsActive,Title,Description,Quantity,Price")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Active,Quantity,Price")] Product product)
         {
             if (id != product.Id)
             {
@@ -111,7 +114,6 @@ namespace Movies.Controllers
             ModelState.Remove("ProductCategories");
             ModelState.Remove("OrderItems");
             ModelState.Remove("ProductImages");
-
             if (ModelState.IsValid)
             {
                 try
@@ -133,6 +135,28 @@ namespace Movies.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditCategory(int id)
+        {
+            List<Category> categories= _context.Category.ToList();
+            foreach(var cat in categories)
+            {
+                var checkbox = Request.Form[cat.Title];
+                if (checkbox.Contains("true"))
+                {
+                    if(_context.ProductCategory.FirstOrDefault(x=>x.CategoryId == cat.Id && x.ProductId == id) == null)
+                        _context.ProductCategory.Add(new ProductCategory() { CategoryId=cat.Id,ProductId=id});
+                }
+                else
+                {
+                    var p = _context.ProductCategory.FirstOrDefault(x => x.CategoryId == cat.Id && x.ProductId == id);
+                    if (p != null) _context.ProductCategory.Remove(p);
+                }
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Edit), new {id});
         }
 
         // GET: AdminProduct/Delete/5
@@ -165,7 +189,7 @@ namespace Movies.Controllers
             var product = await _context.Product.FindAsync(id);
             if (product != null)
             {
-                _context.ProductImage.RemoveRange(_context.ProductImage.Where(pc => pc.ProductId == product.Id));
+                _context.ProductImage.RemoveRange(_context.ProductImage.Where(pc => pc.ProductId  == product.Id));
                 _context.Product.Remove(product);
             }
             
