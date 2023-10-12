@@ -30,26 +30,28 @@
         <div class="col-sm-4">  
             <div class="card">
                 <div class="card-body">
+                    <a asp-action="Product" asp-route-id="@item.Id" style="text-decoration:none; color:inherit">
                     <h5 class="card-title">@item.Title</h5>
                     <p class="card-text">@item.Description</p>
-                    @{
-                        try
-                        {
-                            var image = item.ProductImages.FirstOrDefault(x => x.IsMainImage == true);
-                            if (image != null)
+                       @{
+                            try
                             {
-                                <img class="card-img" src="@image.FileName" alt="@item.Title"  />
+                                var image = item.ProductImages.FirstOrDefault(x => x.IsMainImage == true);
+                                if (image != null)
+                                {
+                                    <img class="card-img" src="@image.FileName" alt="@item.Title" />
+                                }
+                                else
+                                {
+                                    <img class="card-img" src="~/images/noimage.png" alt="@item.Title" />
+                                }
                             }
-                            else
+                            catch
                             {
-                                <img class="card-img" src="~/images/noimage.png" alt="@item.Title" />
+                                <img class="card-img" src="~/images/noimage.png" alt="@item.Title" width="100" />
                             }
                         }
-                        catch
-                        {
-                            <img class="card-img" src="~/images/noimage.png" alt="@item.Title" width="100" />
-                        }
-                    }
+                    </a>
                     <table class="table table-condensed table-hover">
                         <thead>
                             <tr>
@@ -61,7 +63,8 @@
                             <tr>
                                 <td>@item.Price €</td>
                                 <td>
-                                    <form>
+                                    <form method="post" asp-controller="Cart" asp-action="AddToCart">
+                                        <input type="hidden" name="productId" value="@item.Id" />
                                         <input type="submit" class="btn btn-success btn-sm" value="Add to cart">
                                     </form>
                                 </td>
@@ -70,6 +73,7 @@
                     </table>
                 </div>
             </div>
+            <br>
         </div>
     }
 </div>
