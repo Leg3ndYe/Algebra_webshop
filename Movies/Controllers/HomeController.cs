@@ -29,7 +29,7 @@ namespace Movies.Controllers
         }
         public IActionResult Product(int? id, int? categoryId)
         {
-            List<Product> products = _context.Product.Where(x =>x.IsActive==true).ToList();
+            List<Product> products = _context.Product.Where(x => x.IsActive == true).ToList();
 
             if (id != null)
             {
@@ -45,7 +45,7 @@ namespace Movies.Controllers
                 product.ProductCategories = _context.ProductCategory.Where(pc => pc.ProductId == product.Id).ToList();
             }
 
-            if (categoryId != null) 
+            if (categoryId != null)
             {
                 products = products.Where(p => p.ProductCategories.Any(p => p.CategoryId == categoryId)).ToList();
             }
@@ -59,7 +59,7 @@ namespace Movies.Controllers
             List<CartItem> cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(SessionKeyName);
             if (cart == null) return RedirectToAction("Index");
             if (cart.Count == 0) return RedirectToAction("Index");
-            for (int i=0; i<cart.Count; i++)
+            for (int i = 0; i < cart.Count; i++)
             {
                 var product = _context.Product.Find(cart[i].Product.Id);
                 if (product == null)
@@ -69,30 +69,76 @@ namespace Movies.Controllers
                     errors.Add("Product not foudn and was removed from cart!");
                     continue;
                 }
-                if(product.Quantity < cart[i].Quantity)
+                if (product.Quantity < cart[i].Quantity)
                 {
                     cart[i].Quantity = product.Quantity;
                     errors.Add("Product quantity was reduced to available quantity!");
                 }
-                if(!product.IsActive)
+                if (!product.IsActive)
                 {
                     cart.RemoveAt(i);
                     i--;
                     errors.Add("Product is not active and was removed from the cart!");
                     continue;
                 }
-                
+
             }
             HttpContext.Session.SetObjectAsJson(SessionKeyName, cart);
 
-            foreach(CartItem item in cart)
+            foreach (CartItem item in cart)
             {
-                item.Product.ProductImages=_context.ProductImage.Where(pi=>pi.ProductId == item.Product.Id).ToList();
+                item.Product.ProductImages = _context.ProductImage.Where(pi => pi.ProductId == item.Product.Id).ToList();
                 item.Product.ProductCategories = _context.ProductCategory.Where(pc => pc.ProductId == item.Product.Id).ToList();
             }
 
             ViewBag.Errors = errors;
             return View(cart);
+        }
+
+        [HttpPost]
+        public IActionResult CreateOrder(Order order, bool shippingsameaspersonal)
+        {
+            List<CartItem> cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(SessionKeyName);
+            if(cart == null)
+            {
+                return RedirectToAction("Index");
+            }
+            if(cart.Count == 0)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var errors = new List<string>();
+
+            for (int i = 0; i < cart.Count; i++)
+            {
+                var product = _context.Product.Find(cart[i].Product.Id);
+                if (product == null)
+                {
+                    cart.RemoveAt(i);
+                    i--;
+                    errors.Add("Product not foudn and was removed from cart!");
+                    continue;
+                }
+                if (product.Quantity < cart[i].Quantity)
+                {
+                    cart[i].Quantity = product.Quantity;
+                    errors.Add("Product quantity was reduced to available quantity!");
+                }
+                if (!product.IsActive)
+                {
+                    cart.RemoveAt(i);
+                    i--;
+                    errors.Add("Product is not active and was removed from the cart!");
+                    continue;
+                }
+
+            }
+            HttpContext.Session.SetObjectAsJson(SessionKeyName, cart);
+            if(errors.Count > 0)
+            {
+                return RedirectToAction("Order", new {errors});
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
