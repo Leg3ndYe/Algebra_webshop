@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Movies.Models
 {
@@ -33,7 +34,7 @@ namespace Movies.Models
         [Required(ErrorMessage = "Phone number is required")]
         [StringLength(50)]
         [DataType(DataType.PhoneNumber)]
-        public string Phone { get; set; }
+        public string BillingPhone { get; set; }
 
         [Required(ErrorMessage = "Adress is required")]
         [StringLength(200)]
@@ -69,7 +70,7 @@ namespace Movies.Models
         [Required(ErrorMessage = "Phone adress is required")]
         [StringLength(50)]
         [DataType(DataType.PhoneNumber)]
-        public int ShippingPhone { get; set; }
+        public string ShippingPhone { get; set; }
 
         [Required(ErrorMessage = "Adress adress is required")]
         [StringLength(50)]
@@ -91,7 +92,8 @@ namespace Movies.Models
 
         #endregion
 
-        public string Message { get; set; }
+        [AllowNull]
+        public string? Message { get; set; }
 
         public string UserId { get; set; }
 

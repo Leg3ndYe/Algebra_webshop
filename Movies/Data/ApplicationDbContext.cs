@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Movies.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection.Emit;
 using System.Reflection.Metadata.Ecma335;
 
 namespace Movies.Data
@@ -48,5 +49,39 @@ namespace Movies.Data
         public DbSet<OrderItem> OrderItem { get; set; }
         public DbSet<ProductCategory> ProductCategory { get; set; }
         public DbSet<ProductImage> ProductImage { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Product>().HasData(new Product
+            {   
+                Id = 50,
+                Title = "Rambo",
+                Description = "Rambo is a 2008 American action film directed by Sylvester Stallone, who co-wrote it based on the character John Rambo created by author David Morrell for his novel First Blood. A sequel to Rambo III (1988) and the fourth installment in the Rambo franchise, it co-stars Julie Benz, Paul Schulze, Matthew Marsden, Graham McTavish, Rey Gallegos, Tim Kang, Jake La Botz, Maung Maung Khin, and Ken Howard. In the film, Rambo leads a group of mercenaries into Burma to rescue Christian missionaries, who have been kidnapped by a local infantry unit.",
+                Price = 10.99m,
+                IsActive = true,
+                Quantity = 10
+            });
+            builder.Entity<Product>().HasData(new Product
+            {
+                Id = 51,
+                Title = "Rambo 2",
+                Description = "Rambo: First Blood Part II (also known as Rambo II or First Blood II) is a 1985 American action film directed by George P. Cosmatos and starring Sylvester Stallone, who reprises his role as Vietnam veteran John Rambo. It is the sequel to the 1982 film First Blood, and the second installment in the Rambo franchise. Picking up where the first film left, the sequel is set in the context of the Vietnam War POW/MIA issue; it sees Rambo released from prison by federal order to document the possible existence of POWs in Vietnam, under the belief that he will find nothing, thus enabling the government to sweep the issue under the rug.",
+                Price = 10.99m,
+                IsActive = true,
+                Quantity = 10
+            });
+            builder.Entity<Product>().HasData(new Product
+            {   
+                Id = 52,
+                Title = "Rambo 3",
+                Description = "Rambo III is a 1988 American action film directed by Peter MacDonald and co-written by Sylvester Stallone, who also reprises his role as Vietnam War veteran John Rambo. A sequel to Rambo: First Blood Part II (1985), it is the third installment in the Rambo franchise, followed by Rambo. It was in turn followed by Rambo: Last Blood (2019).",
+                Price = 10.99m,
+                IsActive = true,
+                Quantity = 10
+            });
+
+
+            base.OnModelCreating(builder);
+        }
     }
 }
