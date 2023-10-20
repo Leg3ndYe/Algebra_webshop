@@ -27,7 +27,7 @@ namespace Movies.Controllers
             foreach(CartItem item in cart)
             {
                 item.Product.ProductImages = _context.ProductImage.Where(pi => pi.ProductId == item.Product.Id).ToList();
-                total = item.getTotal();
+                total += item.getTotal();
             }
             ViewBag.CartTotal = total;
             return View(cart);

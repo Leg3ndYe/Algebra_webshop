@@ -61,6 +61,14 @@ namespace Movies.Data
                 IsActive = true,
                 Quantity = 10
             });
+            builder.Entity<ProductImage>().HasData(new ProductImage
+            {
+                Id = 50,
+                ProductId = 50,
+                IsMainImage = true,
+                Title = "Rambo",
+                FileName = "/images/products/50/rambo.jpg"
+            });
             builder.Entity<Product>().HasData(new Product
             {
                 Id = 51,
