@@ -64,7 +64,6 @@
                     </td>
                 </tbody>
             </table>
-            <hr />
         <table class="table">
             <thead>
                 <tr>
@@ -123,6 +122,10 @@
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
+        <p></p>
+        <hr />
+    <a asp-action="Index" asp-controller="AdminOrderItem" asp-route-id="@Model.Id">Edit order items</a>
+    <partial name="_OrderItemsPartial" for="@Model.OrderItems" />
 </div>
 
 <div>
