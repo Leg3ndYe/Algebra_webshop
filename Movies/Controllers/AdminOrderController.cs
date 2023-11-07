@@ -68,23 +68,6 @@ namespace Movies.Controllers
             return View(order);
         }
 
-
-        // POST: AdminOrder/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,DateCreated,Total,BillingFirstName,BillingLastName,BillingEmail,BillingPhone,BillingAdress,BillingCity,BillingPostalCode,BillingCountry,ShippingFirstName,ShippingLastName,ShippingEmail,ShippingPhone,ShippingAdress,ShippingCity,ShippingPostalCode,ShippingCountry,Message,UserId")] Order order)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(order);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(order);
-        }
-
         // GET: AdminOrder/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {

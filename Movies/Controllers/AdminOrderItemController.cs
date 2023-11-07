@@ -125,9 +125,9 @@ namespace Movies.Controllers
             {
                 try
                 {
-                    var old_orederItem = await _context.OrderItem.FindAsync(id);
-                    var quantity_diff = orderItem.Quantity - old_orederItem.Quantity;
-                    var price_diff = orderItem.Price - old_orederItem.Price;
+                    var old_orderItem = await _context.OrderItem.FindAsync(id);
+                    var quantity_diff = orderItem.Quantity - old_orderItem.Quantity;
+                    var price_diff = orderItem.Price - old_orderItem.Price;
                     if (quantity_diff < 0)
                     {
                         _context.Product.Find(orderItem.ProductId).Quantity += Math.Abs(quantity_diff);
@@ -147,12 +147,12 @@ namespace Movies.Controllers
                     }
                     if(price_diff != 0 || quantity_diff != 0)
                     {
-                        var old_price = old_orederItem.Price * old_orederItem.Quantity;
+                        var old_price = old_orderItem.Price * old_orderItem.Quantity;
                         var new_price = orderItem.Price * orderItem.Quantity;
                         _context.Order.Find(orderItem.OrderId).Total += new_price - old_price;
                     }
-                    old_orederItem.Quantity = orderItem.Quantity;
-                    old_orederItem.Price = orderItem.Price;
+                    old_orderItem.Quantity = orderItem.Quantity;
+                    old_orderItem.Price = orderItem.Price;
                     //_context.Update(orderItem);
                     await _context.SaveChangesAsync();
                 }
